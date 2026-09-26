@@ -1,0 +1,12 @@
+# Tower app definition. Check https://docs.tower.dev for the current schema.
+# Deploy with `tower deploy`. Tower is only the clock: it calls POST /refresh.
+
+name = "plainly-daily"
+script = "task.py"
+
+[schedule]
+cron = "15 11 * * *"  # daily, 11:15 UTC (7:15am New York in summer)
+
+[parameters]
+api_url = "https://your-backend.up.railway.app"
+cron_secret = "same value as CRON_SECRET on the backend"
