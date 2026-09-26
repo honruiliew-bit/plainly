@@ -230,7 +230,8 @@ async def personal(body: PersonalIn, user=Depends(get_current_user)):
     limit(f"pers:{uid}", 30, 3600)
     try:
         payload = await ex.personal_impact(rows[0]["payload"], rows[0]["title"], profile)
-    except Exception:
+    except Exception as e:
+        print("[claude error]", repr(e), flush=True)
         raise HTTPException(502, "Could not tailor that just now. Try again.")
     await store.upsert("personal_impacts", {"user_id": uid, "key": body.id, "phash": phash, "payload": payload}, on_conflict="user_id,key")
     return {"personal": payload}
@@ -291,7 +292,8 @@ async def explain(body: ExplainIn, user=Depends(get_current_user)):
 
     try:
         payload = await ex.explain_text(title, text)
-    except Exception:
+    except Exception as e:
+        print("[claude error]", repr(e), flush=True)
         raise HTTPException(502, "The explainer is busy. Try again in a moment.")
     row = await store.upsert(
         "explainers",
@@ -323,7 +325,8 @@ async def ask(body: AskIn, user=Depends(get_current_user)):
         raise HTTPException(404, "Explainer not found.")
     try:
         answer = await ex.answer_followup(rows[0]["payload"], body.question.strip(), body.history)
-    except Exception:
+    except Exception as e:
+        print("[claude error]", repr(e), flush=True)
         raise HTTPException(502, "Could not answer just now. Try again.")
     return {"answer": answer}
 
@@ -345,7 +348,8 @@ async def deepdive(body: DeepIn, user=Depends(get_current_user)):
     src = row["payload"].get("source_text") or row["title"]
     try:
         deep = await ex.explain_text(row["title"], src)
-    except Exception:
+    except Exception as e:
+        print("[claude error]", repr(e), flush=True)
         raise HTTPException(502, "The explainer is busy. Try again in a moment.")
     merged = dict(row["payload"])
     for k in ("sections", "takeaways", "follow_ups", "jargon", "unknowns"):
