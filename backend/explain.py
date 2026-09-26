@@ -88,7 +88,13 @@ _client = None
 def client() -> AsyncAnthropic:
     global _client
     if _client is None:
-        _client = AsyncAnthropic(timeout=90, max_retries=2)
+        raw = os.getenv("ANTHROPIC_API_KEY", "")
+        key = raw.strip().strip("\"'").strip()
+        print("[claude key]", "len", len(raw), "->", len(key), "starts", key[:7], "ends_clean", key == raw, flush=True)
+        base = os.getenv("ANTHROPIC_BASE_URL")
+        if base:
+            print("[claude base_url set]", base, flush=True)
+        _client = AsyncAnthropic(api_key=key, timeout=90, max_retries=2)
     return _client
 
 
